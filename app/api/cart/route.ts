@@ -1,0 +1,3 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { shopifyFetch } from '@/lib/shopify';
+export async function POST(request:NextRequest){const body=await request.json() as {lines:{merchandiseId:string;quantity:number}[]};const data=await shopifyFetch<any>(`mutation($input:CartInput!){cartCreate(input:$input){cart{ id checkoutUrl totalQuantity } userErrors{field message}}}`,{input:{lines:body.lines}});if(!data)return NextResponse.json({error:'Shopify is not configured.'},{status:503});const errors=data.cartCreate.userErrors;if(errors.length)return NextResponse.json({error:errors[0].message},{status:400});return NextResponse.json(data.cartCreate.cart)}
